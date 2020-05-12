@@ -8,48 +8,46 @@ import random
 lower = 1
 higher = 100
 
-attempt = 1
+
 # First store a random number
 original = random.randint(lower, higher)
-print("Original value is", original)
+print(f"Original value is: {original}")
 print(f"Original limits are {lower} to {higher}")
 
 # Now try to guess the original random number
-def guessValue(lower, higher):
+def guessValue(lower, higher, attempt):
     guessedValue = random.randint(lower, higher)
     if guessedValue == original:
-        print("Correct guess: ", guessedValue)
-        return guessedValue
+        print(f"Correct guess: {guessedValue}. You took {attempt} attempt(s)")
     elif guessedValue > original:
         # If you have guessed higher, change your guessing upper limit
-        print("You guessed higher: ", guessedValue)
+        print(f"You guessed higher: {guessedValue}")
         newHigher = guessedValue -1
+        attempt = attempt + 1
         print(f"New limits are {lower} to {newHigher}")
-        guessValue(lower, newHigher)
+        guessValue(lower, newHigher, attempt)
     else:
         # If you have guessed lower, change your guessing lower limit
-        print("You guessed lower: ", guessedValue)
+        print(f"You guessed lower: {guessedValue}")
         newLower = guessedValue + 1
+        attempt = attempt + 1
         print(f"New limits are {newLower} to {higher}")
-        guessValue(newLower, higher)
+        guessValue(newLower, higher, attempt)
 
-guessValue(lower, higher)
+# Lets see how many attempts we take to guess
+attempt = 1
+guessValue(lower, higher, attempt)
+
 
 """
-Output - 
-Original value is 87
+Sample output - 
+Original value is: 79
 Original limits are 1 to 100
-You guessed lower:  9
-New limits are 10 to 100
-You guessed lower:  28
-New limits are 29 to 100
-You guessed lower:  76
-New limits are 77 to 100
-You guessed higher:  89
-New limits are 77 to 88
-You guessed lower:  80
-New limits are 81 to 88
-You guessed lower:  83
-New limits are 84 to 88
-Correct guess: 87
+You guessed lower: 75
+New limits are 76 to 100
+You guessed higher: 91
+New limits are 76 to 90
+You guessed higher: 80
+New limits are 76 to 79
+Correct guess: 79. You took 4 attempt(s)
 """
