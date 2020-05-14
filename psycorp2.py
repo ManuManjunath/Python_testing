@@ -1,15 +1,22 @@
-import psycopg2
+from psycopg2 import pool
 
-# To write to PGSQL -
-with psycopg2.connect(database="learning", user="postgres", password="", host="localhost") as connection:
-    with connection.cursor() as cursor:
-        cursor.execute("insert into my_table values("col_1", 1, "One"))
-# This way ensures auto commit and auto closing of connection
+# Create a connection to a PostgreSQL DB
+connectionPool = pool.SimpleConnectionPool(1, # Min connections in pool
+                                           10, # Max connections in pool
+                                           database="learning",
+                                           user="postgres",
+                                           password="pgadmin",
+                                           host="localhost")
 
-# To read from a table -
-with psycopg2.connect(database="learning", user="postgres", password="", host="localhost") as connection:
+# Write to DB
+with connectionPool.getconn() as connection:
     with connection.cursor() as cursor:
-        cursor.execute("select * from my_table")
+        cursor.execute("insert into items values('Curtain', 9, 120)")
+
+# Read from DB        
+with connectionPool.getconn() as connection:
+    with connection.cursor() as cursor:
+        cursor.execute("select * from items")
         get = cursor.fetchall()
-        print(get)
+        print(get)        
 # For more options, check dir(cursor)
