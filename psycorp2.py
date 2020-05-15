@@ -5,7 +5,7 @@ connectionPool = pool.SimpleConnectionPool(1, # Min connections in pool
                                            10, # Max connections in pool
                                            database="learning",
                                            user="postgres",
-                                           password="pgadmin",
+                                           password="",
                                            host="localhost")
 
 # Write to DB
