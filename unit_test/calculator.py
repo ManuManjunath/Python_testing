@@ -47,7 +47,6 @@ class Calculator:
         :rtype: integer or floar unless you're trying to divide by 0
         """
         if b == 0:
-            division = "Error: Cannot divide by 0"
-        else:
-            division = a / b
+            raise ValueError('Cannot divide by 0')
+        division = a / b
         return division
