@@ -16,5 +16,5 @@ class CalculatorTest(unittest.TestCase):
         self.assertEqual(multiplication, -20)
 
     def test_divide(self):
-        division = Calculator.divide(10, 0)
-        self.assertEqual(division, "Error: Cannot divide by 0")
+        division = Calculator.divide(10, -2)
+        self.assertEqual(division, -5)
