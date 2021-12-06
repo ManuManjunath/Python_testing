@@ -11,7 +11,7 @@ def war():
     global continents
     attacker = random.choice(continents)
     # Lets avoid continents attacking themselves.
-    defending_continents = b = [i for i in continents if i != attacker]
+    defending_continents = [i for i in continents if i != attacker]
     defender = random.choice(defending_continents)
     
     if points[attacker] > points[defender]:
