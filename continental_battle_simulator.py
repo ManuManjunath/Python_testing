@@ -4,11 +4,19 @@ continents = ['Asia', 'Africa', 'Europe', 'Oceania', 'N America', 'S America', '
 # Set initial points to 5 each
 points = {"Asia": 5, "Africa": 5, "Europe": 5, "Oceania": 5, "N America": 5, "S America": 5, "Antarctica": 5}
 
+def end_of_continent():
+    # Check if any continent has lost all of their points. If they have, end of game for them.
+    global points, continents
+    for c in continents:
+        if points[c] == 0:
+            points.pop(c, None)
+            continents = [i for i in continents if i != c]
+            print(f"{c} has been wiped off from the planet.")
+    
 def war():
     # WAR! Intercontinental relations are about to take a hit.
     # The continent with higher points will win and steal an additional point from the loser.
-    global points
-    global continents
+    global points, continents
     attacker = random.choice(continents)
     # Lets avoid continents attacking themselves.
     defending_continents = [i for i in continents if i != attacker]
@@ -25,23 +33,17 @@ def war():
     else:
         print(f"{attacker} attacked {defender}. Its a stalemate.")
 
-    # If the losing continent has lost all of their points, they will be removed from the game.
-    if points[attacker] == 0:
-        continents = [i for i in continents if i != attacker]
-        points.pop(attacker, None)
-        print(f"{attacker} has been wiped off from the planet")
-    if points[defender] == 0:
-        continents = [i for i in continents if i != defender]
-        points.pop(defender, None)
-        print(f"{defender} has been wiped off from the planet")
+    # Check if all the continents are still in the game.
+    end_of_continent()
+        
     # Let us see how the points table look at the end of this round
     print(points)
 
 def grow(continent):
     # It is time for peace and prosperity.
     # There will be a continent wide welfare and they'll get a point.
-    global points
-    global continents
+    global points, continents
+#    global continents
     print(f"{continent} has grown in power")
     points[continent] += 1
     # Let us see how the points table look at the end of this round
