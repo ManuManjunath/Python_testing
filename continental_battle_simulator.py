@@ -1,8 +1,10 @@
 import random
 
 continents = ['Asia', 'Africa', 'Europe', 'Oceania', 'N America', 'S America', 'Antarctica']
-# Set initial points to 5 each
-points = {"Asia": 5, "Africa": 5, "Europe": 5, "Oceania": 5, "N America": 5, "S America": 5, "Antarctica": 5}
+# Set initial points
+points = dict()
+for c in continents:
+    points[c] = 3
 
 def end_of_continent():
     # Check if any continent has lost all of their points. If they have, end of game for them.
