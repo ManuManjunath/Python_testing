@@ -222,3 +222,72 @@ def convertToPandasAndExplode(spark_df, catg):
 #convertToPandasAndExplode(df_home, "home")
 #convertToPandasAndExplode(df_apparel, "apparel")
 convertToPandasAndExplode(df_electronics, "electronics")
+
+
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
+
+hdfs_path = "hdfs://bigred3ns/user/Z0019Z3/search/typeahead"
+afterTaProcessor = "ta_dictionary/part-00000-1eae4248-cc6f-4070-8a75-8a144ff9bbed-c000.csv"
+afterKeywordCurations = "curated_ta_dictionary/part-00000-3017b411-0dcb-4b04-a0ba-1232b7a93b15-c000.csv"
+afterCatgV2 = "ta_dictionary_category/part-00000-a4e5e86d-602f-4b30-a1e3-14f51c9f5cbe-c000.csv"
+temp = "curated_ta_dictionary_classify_temp/part-00000-dd5cd89f-637f-43f2-848e-372d39f14e49-c000.csv"
+main = "curated_ta_dictionary_classify/part-00000-db051c65-41fe-482d-94c0-ed97a325457c-c000.csv"
+
+hdfsAfterTaProcessor = f"{hdfs_path}/{afterTaProcessor}"
+hdfsAfterKeywordCurations = f"{hdfs_path}/{afterKeywordCurations}"
+hdfsAfterCatgV2 = f"{hdfs_path}/{afterCatgV2}"
+hdfsFinalTemp = f"{hdfs_path}/{temp}"
+hdfsFinalMain = f"{hdfs_path}/{main}"
+
+dfAfterTaProcessor = spark.read.option("sep", "\t").option("header", False).csv(hdfsAfterTaProcessor)
+dfAfterTaProcessor = dfAfterTaProcessor.withColumnRenamed("_c0", "query").withColumnRenamed("_c1", "score").withColumnRenamed("_c2", "normQueries").withColumnRenamed("_c3", "dictionaryName")
+dfAfterKeywordCurations = spark.read.option("sep", "\t").option("header", False).csv(hdfsAfterKeywordCurations)
+dfAfterKeywordCurations = dfAfterKeywordCurations.withColumnRenamed("_c0", "query").withColumnRenamed("_c1", "score").withColumnRenamed("_c2", "normQueries").withColumnRenamed("_c3", "dictionaryName")
+dfAfterCatgV2 = spark.read.option("sep", "\t").option("header", False).csv(hdfsAfterCatgV2)
+dfAfterCatgV2 = dfAfterCatgV2.withColumnRenamed("_c0", "query").withColumnRenamed("_c1", "score").withColumnRenamed("_c2", "categories").withColumnRenamed("_c3", "siteTaxoCatg").withColumnRenamed("_c4", "normQueries").withColumnRenamed("_c5", "dictionaryName")
+dfFinalTemp = spark.read.option("sep", "\t").option("header", True).csv(hdfsFinalTemp)
+dfFinalMain = spark.read.option("sep", "\t").option("header", True).csv(hdfsFinalMain)
+
+# qry = 'dress collaboration' # Old one (was excluding combined during keyword curations) - fine now
+# Sample app#||#web : pillow covers, womens jewelry, living room lamps, headphones with case
+qry = "headphones with case"
+
+print("After initial TA Processor")
+print(dfAfterTaProcessor.filter(dfAfterTaProcessor.query == qry).show(20, False))
+print("After keyword curations")
+print(dfAfterKeywordCurations.filter(dfAfterKeywordCurations.query == qry).show(20, False))
+print("After Catg V2 processor")
+print(dfAfterCatgV2.filter(dfAfterCatgV2.query == qry).select(F.col("query"), F.col("score"), F.col("categories"), F.col("dictionaryName")).show(20, False))
+print("Validation processor: Before concat")
+print(dfFinalTemp.filter(dfFinalTemp.query == qry).select(F.col("query"), F.col("score"), F.col("categories"), F.col("dictionaryName")).show(20, False))
+print("validation processor: After concat")
+print(dfFinalMain.filter(dfFinalMain.query == qry).select(F.col("query"), F.col("score"), F.col("categories"), F.col("channel")).show(20, False))
+
+print(dfFinalTemp.groupBy("dictionaryName").count().show(20, False))
+print(dfFinalMain.groupBy("channel").count().show(20, False))
+
+"""
+TypeaheadProcessor in 9662841 ms (2.6 hours)
+KeywordCurationsProcessor in 60499 ms (1 min)
+TypeaheadSitetaxoProcessor in 3945307 ms (1.2 hours)
+TypeaheadCategoryV2Processor in 531159 ms (9 mins)
+TypeaheadClassificationProcessor in 4807252 ms (1.5 hours)
+ClassificationCurationsProcessor in 15313 ms (1 min)
+"""
+print(123582+1960+171511+49487)
+print(123582+46751+171511+202)
+print(123582+49487+202+185269)
+
+
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
+
+path = "hdfs://bigred3ns/user/Z0019Z3/search/typeahead/curated_ta_dictionary_classify"
+file = "part-00000-db051c65-41fe-482d-94c0-ed97a325457c-c000.csv"
+hdfs = f"{path}/{file}"
+
+df = spark.read.option("sep", "\t").option("header", False).csv(hdfs)
+dfCombined = df.filter(df._c5 == 'combined')
+
+dfCombined.sort("_c5").show()
